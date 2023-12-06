@@ -1,0 +1,36 @@
+import cv2
+import numpy as np
+from tensorflow.keras.models import load_model  # Fix the import statement
+import os
+
+# Load the CNN model
+model_path = 'D:/S2/S III/Computer Vision & Pengolahan Citra/Pratikum/cod/convis/disaster.h5'
+model = load_model(model_path)
+
+# Dictionary to map class indices to class labels
+class_indices = {'apar': 0, 'kelas': 1, 'koridor': 2, 'lift': 3, 'orang': 4, 'pintu_darurat': 5, 'pintu_ruang': 6, 'tangga': 7}
+
+# Folder path containing images to predict
+folder_path = 'D:/S2/S III/Computer Vision & Pengolahan Citra/Pratikum/cod/convis/dataset/single_prediction/'
+
+# Iterate through each file in the folder
+for filename in os.listdir(folder_path):
+    if filename.endswith(".jpg") or filename.endswith(".jpeg"):  # Adjust file extensions as needed
+        # Full path to the image file
+        image_path = os.path.join(folder_path, filename)
+
+        # Load and preprocess the image
+        img = cv2.imread(image_path)
+        img = cv2.resize(img, (100, 100))  # Replace with your desired input size
+        img = np.expand_dims(img, axis=0)  # Add batch dimension
+
+        # Make predictions
+        predictions = model.predict(img)
+
+        # Get the predicted class index
+        predicted_class_index = np.argmax(predictions)
+
+        # Map the predicted class index to the class label
+        predicted_class_label = [key for key, value in class_indices.items() if value == predicted_class_index][0]
+
+        print(f"Image: {filename}, Predicted Class: {predicted_class_label}")
